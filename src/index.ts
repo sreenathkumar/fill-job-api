@@ -1,31 +1,40 @@
 import express from 'express'
 import dotenv from 'dotenv'
-import mongoose from 'mongoose'
-
 // Load environment variables from .env file, where API keys and passwords are configured
 dotenv.config();
+import mongoose from 'mongoose'
+import cors from 'cors'
+import imageRoutes from './routes/imageRoutes'
+
 
 // Create Express server
 const app = express();
 
-//database connection
-try {
-   mongoose.connect(process.env.DATABASE_URI)
-      .then(() => console.log("Database connected!"))
-      .catch(err => console.log(err));
-} catch (error) {
-   console.log(error);
-}
+//Enable CORS
+app.use(cors({
+   origin: ['chrome-extension://ibmhjcapkbiglkomafdafglbjfjmhanh', 'http://localhost:3000'],
+   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+   allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
+//database connection
+if (process.env.DATABASE_URI) {
+   try {
+      mongoose.connect(process.env.DATABASE_URI)
+         .then(() => console.log("Database connected!"))
+         .catch(err => console.log(err));
+   } catch (error) {
+      console.log(error);
+   }
+}
 // api routes
 app.get('/api', (req, res) => res.send('Hello World!'));
+app.use('/api', imageRoutes)
 
 // default port to listen
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 //listen to port
 app.listen(PORT, () => {
-   console.log(process.env.STORAGE_URI);
-
    console.log(`Server is listening on port ${PORT}`);
 });

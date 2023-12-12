@@ -1,13 +1,33 @@
 {
    "compilerOptions": {
-      "module": "NodeNext",
-      "moduleResolution": "NodeNext",
-      "baseUrl": "src",
-      "outDir": "dist",
-      "sourceMap": true,
-      "noImplicitAny": true,
+      "target": "ES5",
+      "module": "commonjs",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "moduleResolution": "node",
+      "baseUrl": "./src", // Set this to the root directory of your source files
+      "paths": {
+         "*": [
+            "*",
+            "src/*"
+         ]
+      },
+      "outDir": "./dist", // Set this to the output directory for compiled files
+      "rootDir": "./src", // Set this to the root directory of your source files
+      "declaration": true,
+      "declarationMap": true,
+      "sourceMap": true
    },
-   "include": [
-      "src/**/*"
+   "files": [
+      "src/index.ts"
    ],
+   "include": [
+      "src/**/*.ts"
+   ],
+   "exclude": [
+      "node_modules",
+      "dist"
+   ]
 }

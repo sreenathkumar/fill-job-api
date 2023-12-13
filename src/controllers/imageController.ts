@@ -15,54 +15,53 @@ export const uploadImageController = async (req: express.Request, res: express.R
    try {
       const files = req.files as Express.Multer.File[];
       for (const file of files) {
+
          // Create readable stream from the file buffer
          const readableStream = new Stream.PassThrough();
          readableStream.end(file.buffer);
 
          //Upload the image to the container
          const blobName = `${req.body.id}_${file.fieldname}`;
+         let uploadResponse; // will be checked if the image is uploaded successfully or not
+
          if (file.fieldname === 'photo') {
             const blobClient = photoContainerClient.getBlockBlobClient(blobName);
-            const uploadResponse = await blobClient.uploadStream(readableStream, file.size, 4, {
-               blobHTTPHeaders: { blobContentType: file.mimetype }
-            });
+            uploadResponse = await blobClient.uploadFile(file.path);
          } else if (file.fieldname === 'signature') {
             const blobClient = signatureContainerClient.getBlockBlobClient(blobName);
-            const uploadResponse = await blobClient.uploadStream(readableStream, file.size, 4, {
-               blobHTTPHeaders: { blobContentType: file.mimetype }
-            });
+            uploadResponse = await blobClient.uploadFile(file.path);
          }
 
          console.log(`${file.originalname} uploaded successfully to the blob storage`);
 
-         //Delete the image from the uploads folder
-         fs.unlink(file.path, (unlinkError) => {
-            if (unlinkError) {
-               console.log(`Error deleting image: ${unlinkError}`)
-            } else {
-               console.log(`Image deleted successfully`)
-            }
-         });
-
-         res.send({ status: 'success', message: `Image uploaded successfully to the blob storage` });
+         if (uploadResponse) {
+            //Delete the image from the uploads folder
+            fs.unlink(file.path, (unlinkError) => {
+               if (unlinkError) {
+                  console.log(`Error deleting ${file.fieldname}: ${unlinkError}`);
+               } else {
+                  console.log(`${file.fieldname} deleted successfully`);
+               }
+            });
+         }
       }
-
+      res.send({ status: 'success', message: `Images uploaded successfully to the blob storage` });
    } catch (err) {
       res.send({ status: 'error', error: `Error uploading image: ${err}` });
    }
 }
 
 export const getImageController = async (req: express.Request, res: express.Response) => {
-   const { name, } = req.body;
+   const { id } = req.query as { id: string };
+   if (!id) {
+      throw Error('id not defined');
+   }
+
    try {
-      const photoResponse = await downloadBlob(photoContainerClient, name);// get the image from the container
-      const signatureResponse = await downloadBlob(signatureContainerClient, name); // get the signature from the container
-      console.log(photoResponse);
-
-      //res.send({ status: 'success', photo: photoResponse, signature: signatureResponse });
+      const photoResponse = await downloadBlob(photoContainerClient, `${id}_photo`);// get the image from the container
+      const signatureResponse = await downloadBlob(signatureContainerClient, `${id}_signature`); // get the signature from the container
+      res.send({ status: 'success', photo: photoResponse.toString('base64'), signature: signatureResponse.toString('base64') });
    } catch (err) {
-      console.log(`Error getting image: ${err}`);
-
       res.send({ status: 'error', error: `Error getting image: ${err}` });
    }
 }

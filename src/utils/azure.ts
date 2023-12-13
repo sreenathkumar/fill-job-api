@@ -12,11 +12,11 @@ export const blobServiceClient = new BlobServiceClient(
    new DefaultAzureCredential()
 );
 
-export async function downloadBlob(containerClient: ContainerClient, blobName: string,) {
+export async function downloadBlob(containerClient: ContainerClient, blobName: string) {
    // Get a reference to the blob
    const blobClient = containerClient.getBlobClient(blobName);
    // Download the blob content as a buffer
    const response = await blobClient.downloadToBuffer();
-   return response;
 
+   return response;
 }

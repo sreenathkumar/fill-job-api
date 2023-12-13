@@ -4,7 +4,6 @@ import fs from 'fs';
 import { blobServiceClient, downloadBlob } from '../utils/azure';
 
 
-
 if (!process.env.AZURE_STORAGE_PHOTO_CONTAINER_NAME || !process.env.AZURE_STORAGE_SIGNATURE_CONTAINER_NAME) {
    throw Error('Azure Storage container name defined');
 }
@@ -21,7 +20,7 @@ export const uploadImageController = async (req: express.Request, res: express.R
          readableStream.end(file.buffer);
 
          //Upload the image to the container
-         const blobName = `${Date.now()}-${file.originalname}`;
+         const blobName = `${req.body.id}_${file.fieldname}`;
          if (file.fieldname === 'photo') {
             const blobClient = photoContainerClient.getBlockBlobClient(blobName);
             const uploadResponse = await blobClient.uploadStream(readableStream, file.size, 4, {
@@ -53,17 +52,17 @@ export const uploadImageController = async (req: express.Request, res: express.R
    }
 }
 
-// export const getImageController = async (req: express.Request, res: express.Response) => {
-//    const { name, } = req.body;
-//    try {
-//       const photoResponse = await downloadBlob(photoContainerClient, name);// get the image from the container
-//       const signatureResponse = await downloadBlob(signatureContainerClient, name); // get the signature from the container
-//       console.log(photoResponse);
+export const getImageController = async (req: express.Request, res: express.Response) => {
+   const { name, } = req.body;
+   try {
+      const photoResponse = await downloadBlob(photoContainerClient, name);// get the image from the container
+      const signatureResponse = await downloadBlob(signatureContainerClient, name); // get the signature from the container
+      console.log(photoResponse);
 
-//       //res.send({ status: 'success', photo: photoResponse, signature: signatureResponse });
-//    } catch (err) {
-//       console.log(`Error getting image: ${err}`);
+      //res.send({ status: 'success', photo: photoResponse, signature: signatureResponse });
+   } catch (err) {
+      console.log(`Error getting image: ${err}`);
 
-//       res.send({ status: 'error', error: `Error getting image: ${err}` });
-//    }
-// }
+      res.send({ status: 'error', error: `Error getting image: ${err}` });
+   }
+}

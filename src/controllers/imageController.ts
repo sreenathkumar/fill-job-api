@@ -2,6 +2,7 @@ import express from 'express';
 import { Stream } from 'stream';
 import fs from 'fs';
 import { blobServiceClient, downloadBlob } from '../utils/azure';
+import { getFileExtension } from '../utils/others';
 
 
 if (!process.env.AZURE_STORAGE_PHOTO_CONTAINER_NAME || !process.env.AZURE_STORAGE_SIGNATURE_CONTAINER_NAME) {
@@ -21,7 +22,7 @@ export const uploadImageController = async (req: express.Request, res: express.R
          readableStream.end(file.buffer);
 
          //Upload the image to the container
-         const blobName = `${req.body.id}_${file.fieldname}`;
+         const blobName = `${req.body.id}_${file.fieldname}.${getFileExtension(file.originalname)}`;
          let uploadResponse; // will be checked if the image is uploaded successfully or not
 
          if (file.fieldname === 'photo') {
@@ -58,8 +59,8 @@ export const getImageController = async (req: express.Request, res: express.Resp
    }
 
    try {
-      const photoResponse = await downloadBlob(photoContainerClient, `${id}_photo`);// get the image from the container
-      const signatureResponse = await downloadBlob(signatureContainerClient, `${id}_signature`); // get the signature from the container
+      const photoResponse = await downloadBlob(photoContainerClient, `${id}_photo.jpg`);// get the image from the container
+      const signatureResponse = await downloadBlob(signatureContainerClient, `${id}_signature.jpg`); // get the signature from the container
       res.send({ status: 'success', photo: photoResponse.toString('base64'), signature: signatureResponse.toString('base64') });
    } catch (err) {
       res.send({ status: 'error', error: `Error getting image: ${err}` });

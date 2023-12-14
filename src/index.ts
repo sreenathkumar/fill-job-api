@@ -6,7 +6,6 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 import imageRoutes from './routes/imageRoutes'
 
-
 // Create Express server
 const app = express();
 
@@ -33,7 +32,6 @@ app.use('/api', imageRoutes)
 
 // default port to listen
 const PORT = process.env.PORT || 8080;
-
 //listen to port
 app.listen(PORT, () => {
    console.log(`Server is listening on port ${PORT}`);

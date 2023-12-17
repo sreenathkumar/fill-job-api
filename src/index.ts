@@ -14,8 +14,10 @@ const app = express(); // Create Express server
 
 app.use(express.json()); // Parse incoming requests data
 //Enable CORS
+console.log();
+
 app.use(cors({
-   origin: ['chrome-extension://ibmhjcapkbiglkomafdafglbjfjmhanh', 'http://localhost:3000'],
+   origin: process.env.ALLOWED_ORIGINS,
    methods: ['GET', 'POST', 'PUT', 'DELETE'],
    allowedHeaders: ['Content-Type', 'Authorization']
 }));

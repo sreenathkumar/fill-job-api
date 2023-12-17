@@ -1,6 +1,7 @@
 import express from 'express';
 import { User } from '../models/userModels';
-import { UserType } from '../utils/types';
+import ApplicationProfile from '../models/profileModels';
+
 
 export const getProfilesController = async (req: express.Request, res: express.Response) => {
    try {
@@ -26,3 +27,48 @@ export const getProfilesController = async (req: express.Request, res: express.R
    }
 
 };
+
+export const createProfileController = async (req: express.Request, res: express.Response) => {
+   const profileData = req.body;
+
+   if (!profileData) {
+      res.send({ status: 'error', message: 'profile data not found' });
+      return;
+   };
+   try {
+      const createRes = await ApplicationProfile.create(profileData);
+      res.send({ status: 'success', message: 'profile created successfully', data: createRes });
+   } catch (error) {
+      res.send({ status: 'error', message: error });
+   }
+};
+
+export const updateProfileController = async (req: express.Request, res: express.Response) => {
+   const profileData = req.body;
+
+   if (!profileData) {
+      res.send({ status: 'error', message: 'profile data not found' });
+      return;
+   };
+   try {
+      const updateRes = await ApplicationProfile.updateOne({ _id: profileData._id }, profileData);
+      res.send({ status: 'success', message: 'profile updated successfully', data: updateRes });
+   } catch (error) {
+      res.send({ status: 'error', message: error });
+   }
+};
+
+export const deleteProfileController = async (req: express.Request, res: express.Response) => {
+   const profileId = req.query.profileId as string;
+   if (!profileId) {
+      res.send({ status: 'error', message: 'profile id not found' });
+      return;
+   }
+
+   try {
+      const deleteRes = await ApplicationProfile.deleteOne({ _id: profileId });
+      res.send({ status: 'success', message: 'profile deleted successfully', data: deleteRes });
+   } catch (error) {
+      res.send({ status: 'error', message: error });
+   }
+}

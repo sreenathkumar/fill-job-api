@@ -5,16 +5,22 @@ dotenv.config();
 import mongoose from 'mongoose'
 import cors from 'cors'
 import imageRoutes from './routes/imageRoutes'
+import profileRoutes from './routes/profileRoutes'
 
-// Create Express server
-const app = express();
 
+const app = express(); // Create Express server
+
+// ==============================>-> Middlewires <-<==============================
+
+app.use(express.json()); // Parse incoming requests data
 //Enable CORS
 app.use(cors({
    origin: ['chrome-extension://ibmhjcapkbiglkomafdafglbjfjmhanh', 'http://localhost:3000'],
    methods: ['GET', 'POST', 'PUT', 'DELETE'],
    allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// ==============================>-> Middlewires <-<==============================
 
 //database connection
 if (process.env.DATABASE_URI) {
@@ -26,9 +32,14 @@ if (process.env.DATABASE_URI) {
       console.log(error);
    }
 }
-// api routes
+
+// ==============================>-> Routes <-<==============================
+
 app.get('/api', (req, res) => res.send('Hello World!'));
-app.use('/api', imageRoutes)
+app.use('/api', imageRoutes);
+app.use('/api', profileRoutes);
+
+// ==============================>-> Routes <-<==============================
 
 // default port to listen
 const PORT = process.env.PORT || 8080;

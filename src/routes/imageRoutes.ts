@@ -6,7 +6,7 @@ import { upload } from '../middlewires/uploadImageMiddlewire';
 const router: Router = express.Router();
 
 router.get('/photos', getImageController);
-router.post('/photos/upload', upload.any(), uploadImageController);
+router.post('/upload', upload.any(), uploadImageController);
 
 
 

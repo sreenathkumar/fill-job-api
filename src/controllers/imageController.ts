@@ -61,8 +61,11 @@ export const getImageController = async (req: express.Request, res: express.Resp
    try {
       const photoResponse = await downloadBlob(photoContainerClient, `${id}_photo.jpg`);// get the image from the container
       const signatureResponse = await downloadBlob(signatureContainerClient, `${id}_signature.jpg`); // get the signature from the container
+
+      console.log(photoResponse, signatureResponse);
       res.send({ status: 'success', photo: photoResponse.toString('base64'), signature: signatureResponse.toString('base64') });
    } catch (err) {
+      console.log(err);
       res.send({ status: 'error', error: `Error getting image: ${err}` });
    }
 }

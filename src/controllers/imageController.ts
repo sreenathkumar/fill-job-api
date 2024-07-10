@@ -23,47 +23,52 @@ export const uploadImageController = async (
   res: express.Response
 ) => {
   try {
-    const files = req.files as Express.Multer.File[];
+    const files = req.files as Express.Multer.File[] | undefined;
+
+    if (!files || files.length === 0) {
+      return res
+        .status(400)
+        .send({ status: "error", error: "No files uploaded" });
+    }
+
     for (const file of files) {
       // Create readable stream from the file buffer
       const readableStream = new Stream.PassThrough();
       readableStream.end(file.buffer);
 
-      //Upload the image to the container
+      // Upload the image to the container
       const blobName = `${req.body.id}_${file.fieldname}.${getFileExtension(
         file.originalname
       )}`;
-      let uploadResponse; // will be checked if the image is uploaded successfully or not
+      let uploadResponse;
 
       if (file.fieldname === "photo") {
         const blobClient = photoContainerClient.getBlockBlobClient(blobName);
-        uploadResponse = await blobClient.uploadFile(file.path);
+        uploadResponse = await blobClient.uploadData(file.buffer);
       } else if (file.fieldname === "signature") {
         const blobClient =
           signatureContainerClient.getBlockBlobClient(blobName);
-        uploadResponse = await blobClient.uploadFile(file.path);
+        uploadResponse = await blobClient.uploadData(file.buffer);
       }
 
       if (uploadResponse) {
-        //Delete the image from the uploads folder
-        fs.unlink(file.path, (unlinkError) => {
-          if (unlinkError) {
-            console.log(`Error deleting ${file.fieldname}: ${unlinkError}`);
-          } else {
-            console.log(`${file.fieldname} deleted successfully`);
-          }
-        });
+        console.log(`${file.fieldname} uploaded successfully`);
       }
     }
+
     res.send({
       status: "success",
       message: `Images uploaded successfully to the blob storage`,
     });
   } catch (err) {
-    res.send({ status: "error", error: `Error uploading image: ${err}` });
+    console.error("Error uploading image:", err);
+    res
+      .status(500)
+      .send({ status: "error", error: `Error uploading image: ${err}` });
   }
 };
 
+// Get the image from the container
 export const getImageController = async (
   req: express.Request,
   res: express.Response

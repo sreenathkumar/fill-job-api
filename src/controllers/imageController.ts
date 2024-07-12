@@ -1,6 +1,5 @@
 import express from "express";
 import { Stream } from "stream";
-import fs from "fs";
 import { blobServiceClient, downloadBlob } from "../utils/azure";
 import { getFileExtension } from "../utils/others";
 

@@ -1,8 +1,11 @@
 import express from "express";
 import { User } from "../models/userModels";
 import ApplicationProfile from "../models/profileModels";
+import dbDataMap from "../utils/dbDataMap.json";
 
-
+// =========================================================
+// Controller for getting profiles
+// =========================================================
 export const getProfilesController = async (
    req: express.Request,
    res: express.Response
@@ -26,6 +29,9 @@ export const getProfilesController = async (
    }
 };
 
+// =========================================================
+// Controller for creating profile
+// =========================================================
 export const createProfileController = async (req: express.Request, res: express.Response) => {
    const profileData = req.body;
 
@@ -41,6 +47,9 @@ export const createProfileController = async (req: express.Request, res: express
    }
 };
 
+// =========================================================
+// Controller for updating profile
+// =========================================================
 export const updateProfileController = async (req: express.Request, res: express.Response) => {
    const profileData = req.body;
 
@@ -56,6 +65,9 @@ export const updateProfileController = async (req: express.Request, res: express
    }
 };
 
+// =========================================================
+// Controller for deleting profile
+// =========================================================
 export const deleteProfileController = async (req: express.Request, res: express.Response) => {
    const profileId = req.query.profileId as string;
    if (!profileId) {
@@ -70,3 +82,73 @@ export const deleteProfileController = async (req: express.Request, res: express
       res.send({ status: 'error', message: error });
    }
 }
+
+// =========================================================
+// Controller for getting job data
+// =========================================================
+export const getJobDataController = async (
+   req: express.Request,
+   res: express.Response
+) => {
+
+   try {
+      //get data form database
+      const dbData = await ApplicationProfile.findOne({ email: 'gofranhossent20@gmail.com' }).lean();
+
+      if (!dbData) {
+         throw new Error("Data not found");
+      }
+
+      const { matchedData, notFoundKeys } = getSearchedData(dbData, req.body.data);
+
+      //const aiResponse = await getGroqChatCompletion();
+      //const data = aiResponse?.choices[0]?.message?.content;
+
+
+   } catch (error: any) {
+      console.log(error);
+      res.status(500).send({
+         status: "error",
+         message: error.message || "Internal server error",
+      });
+   }
+};
+
+
+// =============================================================
+// search for matching id attribute value coming from frontend
+// =============================================================
+const getSearchedData = (dbData: { [key: string]: any }, htmlData: { [key: string]: any }) => {
+
+   //return value
+   let result: { [key: string]: any } = {};
+   let notFoundKeys: string[] = [];
+
+   for (let key in htmlData) {
+      //check if the key is found in the dbData
+      if (dbData.hasOwnProperty(key)) {
+         result[key] = dbData[key];
+      } else {
+         notFoundKeys.push(key);
+
+         // what is asking by the key in the htmlData
+         const keyLable = htmlData[key];
+
+         for (let dbKey in dbData) {
+            //check if the asking info matches with any dbDataMap
+            if ((dbDataMap as { [key: string]: string })[dbKey] === keyLable) {
+               result[key] = dbData[dbKey];
+               notFoundKeys = notFoundKeys.filter((item) => item !== key);
+               break
+            }
+         }
+
+      }
+   }
+
+   return {
+      matchedData: result,
+      notFoundKeys: notFoundKeys,
+   };
+}
+

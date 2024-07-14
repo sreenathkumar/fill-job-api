@@ -1,5 +1,5 @@
-import express from 'express'
-import dotenv from 'dotenv'
+import express from "express";
+import dotenv from "dotenv";
 // Load environment variables from .env file, where API keys and passwords are configured
 dotenv.config();
 import mongoose from 'mongoose'
@@ -20,16 +20,27 @@ const app = express(); // Create Express server
 app.use(express.json()); // Parse incoming requests data
 // set
 app.use(session({
-   secret: 'your_secret_key', // replace with a strong, random key
-   resave: false,
-   saveUninitialized: true,
+  secret: 'your_secret_key', // replace with a strong, random key
+  resave: false,
+  saveUninitialized: true,
 }));
 //Enable CORS
-app.use(cors({
-   origin: process.env.ALLOWED_ORIGINS,
-   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-   allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: [
+      "chrome-extension://ibmhjcapkbiglkomafdafglbjfjmhanh",
+      "http://localhost:3000",
+      "https://teletalk.com.bd",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+//Middleware to parse urlencoded request body
+app.use(express.urlencoded({ extended: true }));
+//Middleware to parse json request body
+app.use(express.json());
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -41,13 +52,14 @@ passport.deserializeUser(User.deserializeUser());
 
 //database connection
 if (process.env.DATABASE_URI) {
-   try {
-      mongoose.connect(process.env.DATABASE_URI)
-         .then(() => console.log("Database connected!"))
-         .catch(err => console.log(err));
-   } catch (error) {
-      console.log(error);
-   }
+  try {
+    mongoose
+      .connect(process.env.DATABASE_URI)
+      .then(() => console.log("Database connected!"))
+      .catch((err) => console.log(err));
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // ==============================>-> Routes <-<==============================
@@ -63,5 +75,5 @@ app.use('/api', profileRoutes);
 const PORT = process.env.PORT || 8080;
 //listen to port
 app.listen(PORT, () => {
-   console.log(`Server is listening on port ${PORT}`);
+  console.log(`Server is listening on port ${PORT}`);
 });

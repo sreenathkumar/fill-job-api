@@ -3,4 +3,5 @@
 .env
 build/
 dist/
+temp/
 checklist.txt

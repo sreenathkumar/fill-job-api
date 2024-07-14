@@ -1,14 +1,10 @@
 import mongoose from "mongoose";
+import passportLocalMongoose from "passport-local-mongoose";
 
 const UserSchema = new mongoose.Schema({
    name: {
       type: String,
-      required: true
-   },
-   email: {
-      type: String,
-      required: true,
-      unique: true
+      required: false
    },
    profiles: [{
       type: mongoose.Schema.Types.ObjectId,
@@ -16,8 +12,9 @@ const UserSchema = new mongoose.Schema({
    }],
    type: {
       type: String,
-      required: true
+      required: false
    },
 });
 
+UserSchema.plugin(passportLocalMongoose); // using passport-local-mongoose as a plugin for hashing the password ans saving it in the database
 export const User = mongoose.model('user', UserSchema);

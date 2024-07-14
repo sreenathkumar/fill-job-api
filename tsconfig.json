@@ -1,6 +1,6 @@
 {
    "compilerOptions": {
-      "target": "ES5",
+      "target": "ES6",
       "module": "commonjs",
       "strict": true,
       "esModuleInterop": true,
@@ -18,7 +18,8 @@
       "rootDir": "./src", // Set this to the root directory of your source files
       "declaration": true,
       "declarationMap": true,
-      "sourceMap": true
+      "sourceMap": true,
+      "resolveJsonModule": true 
    },
    "files": [
       "src/index.ts"

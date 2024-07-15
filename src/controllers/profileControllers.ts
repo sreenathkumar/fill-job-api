@@ -1,7 +1,10 @@
 import express from "express";
 import { User } from "../models/userModels";
 import ApplicationProfile from "../models/profileModels";
-import dbDataMap from "../utils/dbDataMap.json";
+import { getGroqChatCompletion } from "../AI";
+import dbDataMapJson from "../utils/dbDataMap.json";
+import { log } from "console";
+const dbDataMap = dbDataMapJson as { [key: string]: string };
 
 // =========================================================
 // Controller for getting profiles
@@ -93,17 +96,45 @@ export const getJobDataController = async (
 
    try {
       //get data form database
-      const dbData = await ApplicationProfile.findOne({ email: 'gofranhossent20@gmail.com' }).lean();
+      const dbData = await ApplicationProfile.findOne({ email: req.body.email }).lean();
 
       if (!dbData) {
          throw new Error("Data not found");
       }
 
-      const { matchedData, notFoundKeys } = getSearchedData(dbData, req.body.data);
+      const { matchedData, notFoundKeys, notFoundData } = getSearchedData(dbData, req.body.data);
+      let finalData = matchedData;
 
-      //const aiResponse = await getGroqChatCompletion();
-      //const data = aiResponse?.choices[0]?.message?.content;
+      const aiCommand = `This is the map of the db data: ${JSON.stringify(dbDataMap)}. Now analyze the sample data map and find in the db data map if any key holds the value of sample data map. If found, then return object like: {[sampleDataMapKey]: [matched dbDataMapKey]}. If not found, then leave the key's value as empty string.Of course return the final object as json. If your response is other than a object then just send null. Here is the sample data map: ${JSON.stringify(notFoundData)}.`;
 
+
+      if (notFoundKeys?.length > 0) {
+         console.log("Ai triggered");
+
+         const aiResponse = await getGroqChatCompletion(aiCommand);
+         const aiData = aiResponse?.choices[0]?.message?.content;
+
+         if (!aiData) {
+            throw new Error("AI response not found");
+         }
+         const aiDataJson = JSON.parse(aiData); //convert aiData to json
+
+         if (aiDataJson && typeof aiDataJson === 'object') {
+            for (let aiDataKey in aiDataJson as any) {
+               let matchedDbKey = (aiDataJson as { [key: string]: any })[aiDataKey];
+
+               if ((dbData as { [key: string]: any })[matchedDbKey]) {
+                  finalData[aiDataKey] = (dbData as { [key: string]: any })[matchedDbKey];
+               }
+            }
+         }
+      }
+
+      res.send({
+         status: "success",
+         message: "Data fetched successfully",
+         data: finalData,
+      });
 
    } catch (error: any) {
       console.log(error);
@@ -118,28 +149,29 @@ export const getJobDataController = async (
 // =============================================================
 // search for matching id attribute value coming from frontend
 // =============================================================
-const getSearchedData = (dbData: { [key: string]: any }, htmlData: { [key: string]: any }) => {
+const getSearchedData = (databaseData: { [key: string]: any }, htmlData: { [key: string]: any }) => {
 
    //return value
    let result: { [key: string]: any } = {};
    let notFoundKeys: string[] = [];
+   let notFound: { [key: string]: string } = {};
 
    for (let key in htmlData) {
-      //check if the key is found in the dbData
-      if (dbData.hasOwnProperty(key)) {
-         result[key] = dbData[key];
+      //check if the key is found in the databaseData
+      if (databaseData.hasOwnProperty(key)) {
+         result[key] = databaseData[key];
       } else {
          notFoundKeys.push(key);
+         const keyLable = htmlData[key]; // what is asking by the key in the htmlData
 
-         // what is asking by the key in the htmlData
-         const keyLable = htmlData[key];
-
-         for (let dbKey in dbData) {
+         for (let dbKey in dbDataMap) {
             //check if the asking info matches with any dbDataMap
-            if ((dbDataMap as { [key: string]: string })[dbKey] === keyLable) {
-               result[key] = dbData[dbKey];
+            if (dbDataMap[dbKey] === keyLable) {
+               result[key] = databaseData[dbKey] || '';
                notFoundKeys = notFoundKeys.filter((item) => item !== key);
-               break
+               break;
+            } else {
+               notFound[key] = keyLable;
             }
          }
 
@@ -149,6 +181,7 @@ const getSearchedData = (dbData: { [key: string]: any }, htmlData: { [key: strin
    return {
       matchedData: result,
       notFoundKeys: notFoundKeys,
+      notFoundData: notFound
    };
 }
 

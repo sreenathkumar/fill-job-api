@@ -6,3 +6,9 @@ export interface UserType extends Document {
    profiles: mongoose.Schema.Types.ObjectId[],
    type: string
 }
+
+export interface ProfileDataType {
+   _id: string,
+   data: object,
+   email: string
+}

@@ -68,6 +68,6 @@ const ApplicationProfileSchema = new mongoose.Schema({
    "mas_duration": String
 });
 
-const ApplicationProfile = mongoose.model('applicationProfile', ApplicationProfileSchema);
+const ApplicationProfile = mongoose.model('job_profile', ApplicationProfileSchema);
 
 export default ApplicationProfile;

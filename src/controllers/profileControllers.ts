@@ -110,23 +110,16 @@ export const getJobDataController = async (
 
       if (notFoundKeys?.length > 0) {
          console.log("Ai triggered");
+         try {
+            const aiResponse = await getGroqChatCompletion(aiCommand);
+            const aiData = aiResponse?.choices[0]?.message?.content;
 
-         const aiResponse = await getGroqChatCompletion(aiCommand);
-         const aiData = aiResponse?.choices[0]?.message?.content;
-
-         if (!aiData) {
-            throw new Error("AI response not found");
-         }
-         const aiDataJson = JSON.parse(aiData); //convert aiData to json
-
-         if (aiDataJson && typeof aiDataJson === 'object') {
-            for (let aiDataKey in aiDataJson as any) {
-               let matchedDbKey = (aiDataJson as { [key: string]: any })[aiDataKey];
-
-               if ((dbData as { [key: string]: any })[matchedDbKey]) {
-                  finalData[aiDataKey] = (dbData as { [key: string]: any })[matchedDbKey];
-               }
+            if (aiData) {
+               finalData = { ...finalData, ...JSON.parse(aiData) };
             }
+
+         } catch (error) {
+            console.log('AI error:', error);
          }
       }
 

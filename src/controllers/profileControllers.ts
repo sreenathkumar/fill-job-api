@@ -97,7 +97,8 @@ export const getJobDataController = async (
 
    try {
       //get data form database
-      const dbData: ProfileDataType | null = await ApplicationProfile.findOne({ email: req.body.email }).lean();
+      //const dbData: ProfileDataType | null = await ApplicationProfile.findOne({ email: req.body.email }).lean();
+      const dbData: object = req.body.jobData;
 
       console.log("dbData:", dbData);
 
@@ -106,7 +107,7 @@ export const getJobDataController = async (
          throw new Error("Data not found");
       }
 
-      const { matchedData, notFoundKeys, notFoundData } = getSearchedData(dbData.data, req.body.data);
+      const { matchedData, notFoundKeys, notFoundData } = getSearchedData(dbData, req.body.data);
       let finalData = matchedData;
 
       const aiCommand = `This is the map of the db data: ${JSON.stringify(dbDataMap)}. Now analyze the sample data map and find in the db data map if any key holds the value of sample data map. If found, then return object like: {[sampleDataMapKey]: [matched dbDataMapKey]}. If not found, then leave the key's value as empty string.Of course return the final object as json. If your response is other than a object then just send null. Here is the sample data map: ${JSON.stringify(notFoundData)}.`;

@@ -1,10 +1,9 @@
 import express from "express";
-import { User } from "../models/userModels";
-import ApplicationProfile from "../models/profileModels";
-import { getGroqChatCompletion } from "../AI";
-import dbDataMapJson from "../utils/dbDataMap.json";
-import { log } from "console";
-import { ProfileDataType } from "utils/types";
+import User from "@models/userModels";
+import ApplicationProfile from "@models/profileModels";
+import { getGroqChatCompletion } from "@/AI";
+import dbDataMapJson from "@utils/dbDataMap.json";
+import { ProfileDataType } from "@utils/types";
 const dbDataMap = dbDataMapJson as { [key: string]: string };
 
 // =========================================================
@@ -14,15 +13,17 @@ export const getProfilesController = async (
    req: express.Request,
    res: express.Response
 ) => {
+   console.log('get profile')
    try {
-      const { user_id } = req.query as { user_id: string };
+      //const { user_id } = req.query as { user_id: string };
 
       // if (!user_id) {
       //    res.send({ status: 'error', message: 'user_id not found' });
       //    return;
       // };
       const user = await User.find({});
-      if (Object.keys(user).length === 0) {
+      console.log(user);
+      if (user.length === 0) {
          throw Error("user not found");
       }
       //console.log(Object.keys(user).length);
@@ -110,23 +111,23 @@ export const getJobDataController = async (
       const { matchedData, notFoundKeys, notFoundData } = getSearchedData(dbData, req.body.data);
       let finalData = matchedData;
 
-      const aiCommand = `This is the map of the db data: ${JSON.stringify(dbDataMap)}. Now analyze the sample data map and find in the db data map if any key holds the value of sample data map. If found, then return object like: {[sampleDataMapKey]: [matched dbDataMapKey]}. If not found, then leave the key's value as empty string.Of course return the final object as json. If your response is other than a object then just send null. Here is the sample data map: ${JSON.stringify(notFoundData)}.`;
+      // const aiCommand = `This is the map of the db data: ${JSON.stringify(dbDataMap)}. Now analyze the sample data map and find in the db data map if any key holds the value of sample data map. If found, then return object like: {[sampleDataMapKey]: [matched dbDataMapKey]}. If not found, then leave the key's value as empty string.Of course return the final object as json. If your response is other than a object then just send null. Here is the sample data map: ${JSON.stringify(notFoundData)}.`;
 
 
-      if (notFoundKeys?.length > 0) {
-         console.log("Ai triggered");
-         try {
-            const aiResponse = await getGroqChatCompletion(aiCommand);
-            const aiData = aiResponse?.choices[0]?.message?.content;
+      // if (notFoundKeys?.length > 0) {
+      //    console.log("Ai triggered");
+      //    try {
+      //       const aiResponse = await getGroqChatCompletion(aiCommand);
+      //       const aiData = aiResponse?.choices[0]?.message?.content;
 
-            if (aiData) {
-               finalData = { ...finalData, ...JSON.parse(aiData) };
-            }
+      //       if (aiData) {
+      //          finalData = { ...finalData, ...JSON.parse(aiData) };
+      //       }
 
-         } catch (error) {
-            console.log('AI error:', error);
-         }
-      }
+      //    } catch (error) {
+      //       console.log('AI error:', error);
+      //    }
+      // }
 
       res.send({
          status: "success",

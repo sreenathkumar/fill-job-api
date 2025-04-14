@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { User } from '../models/userModels';
+import User from '@models/userModels';
 import passport from 'passport';
 
 //controller for handling signup

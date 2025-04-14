@@ -17,4 +17,6 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.plugin(passportLocalMongoose); // using passport-local-mongoose as a plugin for hashing the password ans saving it in the database
-export const User = mongoose.model('user', UserSchema);
+const User = mongoose.model('user', UserSchema);
+
+export default User

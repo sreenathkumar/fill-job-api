@@ -1,5 +1,5 @@
 import Groq from "groq-sdk";
-import dbDataMap from "./utils/dbDataMap.json";
+import dbDataMap from "@utils/dbDataMap.json";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 

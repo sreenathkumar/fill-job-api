@@ -9,10 +9,14 @@
       "moduleResolution": "node",
       "baseUrl": "./src", // Set this to the root directory of your source files
       "paths": {
-         "*": [
-            "*",
-            "src/*"
-         ]
+         "@/*": ["*"],
+         "@auth/*": ["auth/*"],
+         "@config/*": ["config/*"],
+         "@controllers/*": ["controllers/*"],
+         "@middlewares/*": ["middlewares/*"],
+         "@models/*": ["models/*"],
+         "@routes/*": ["routes/*"],
+         "@utils/*": ["utils/*"],
       },
       "outDir": "./dist", // Set this to the output directory for compiled files
       "rootDir": "./src", // Set this to the root directory of your source files

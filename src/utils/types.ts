@@ -1,5 +1,12 @@
 import mongoose from "mongoose";
 
+export interface ApiResponse<T = any> {
+   status: number,
+   message: string,
+   data?: T,
+   errors: string[],
+}
+
 export interface UserType extends Document {
    name: string,
    email: string,

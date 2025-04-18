@@ -19,3 +19,8 @@ export interface ProfileDataType {
    data: object,
    email: string
 }
+
+
+export type duration =
+   | number
+   | `${number}${'ms' | 's' | 'm' | 'h' | 'd' | 'w' | 'y'}`

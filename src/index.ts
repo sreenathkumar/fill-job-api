@@ -1,17 +1,14 @@
-import express from "express";
 import dotenv from "dotenv";
+import express from "express";
 dotenv.config();
 
-import mongoose from 'mongoose';
 import cors from 'cors';
-import session from 'express-session';
 import helmet from 'helmet';
-import passport from 'passport';
+import mongoose from 'mongoose';
 
+import authRoutes from '@/routes/authRoutes';
 import imageRoutes from '@routes/imageRoutes';
 import profileRoutes from '@routes/profileRoutes';
-import authRoutes from '@auth/authRoutes';
-import '@config/passport'; // Initialize Passport config
 
 
 
@@ -39,23 +36,6 @@ app.use(
   })
 );
 
-// Session middleware
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'your_secret_key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 1000 * 60 * 60, // 1 hour
-    },
-  })
-);
-
-// Initialize Passport
-app.use(passport.initialize());
-app.use(passport.session());
 
 // ================= Database Connection ===================
 

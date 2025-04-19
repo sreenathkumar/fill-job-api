@@ -1,7 +1,7 @@
 import express from "express";
 import User from "@models/userModels";
 import ApplicationProfile from "@models/profileModels";
-import { getGroqChatCompletion } from "@/AI";
+import { getGroqChatCompletion } from "@/config/AI";
 import dbDataMapJson from "@utils/dbDataMap.json";
 import { ProfileDataType } from "@utils/types";
 const dbDataMap = dbDataMapJson as { [key: string]: string };

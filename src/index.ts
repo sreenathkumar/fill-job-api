@@ -7,9 +7,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import mongoose from 'mongoose';
 
-import authRoutes from '@/routes/authRoutes';
-import imageRoutes from '@routes/imageRoutes';
-import profileRoutes from '@routes/profileRoutes';
+import authRoutes from '@/routes/auth.routes';
+import imageRoutes from '@/routes/image.routes';
+import profileRoutes from '@/routes/profile.routes';
 
 
 

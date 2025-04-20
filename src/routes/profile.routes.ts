@@ -1,4 +1,4 @@
-import { createProfileController, deleteProfileController, getJobDataController, getProfilesController, updateProfileController } from "@controllers/profileControllers";
+import { createProfileController, deleteProfileController, getJobDataController, getProfilesController, updateProfileController } from "@/controllers/profile.controller";
 import express, { Router } from "express";
 const router: Router = express.Router();
 

@@ -1,6 +1,6 @@
 import express from "express";
-import User from "@models/userModels";
-import ApplicationProfile from "@models/profileModels";
+import User from "@/models/user.model";
+import ApplicationProfile from "@/models/profile.model";
 import { getGroqChatCompletion } from "@/config/AI";
 import dbDataMapJson from "@utils/dbDataMap.json";
 import { ProfileDataType } from "@utils/types";

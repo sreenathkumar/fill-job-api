@@ -1,4 +1,4 @@
-import { upload } from "@/middlewares/uploadImageMiddlewire";
+import { upload } from "@/middlewares/uploadImage.middleware";
 import express, { Router } from "express";
 // import {
 //   getImageController,

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import User from "./userModels";
+import User from "./user.model";
 
 const TokenSchema = new mongoose.Schema({
     user: {

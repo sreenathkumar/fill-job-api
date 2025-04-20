@@ -1,4 +1,4 @@
-import Token from '@/models/tokenModel';
+import Token from '@/models/token.model';
 import { generateTokens } from '@/utils/jwt';
 import { convertToMili } from '@/utils/others';
 import { sendError } from '@/utils/response';

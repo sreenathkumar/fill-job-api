@@ -1,5 +1,5 @@
-import Token from '@/models/tokenModel';
-import User from '@/models/userModels';
+import Token from '@/models/token.model';
+import User from '@/models/user.model';
 import { generateTokens } from '@/utils/jwt';
 import { convertToMili } from '@/utils/others';
 import { sendError, sendSuccess } from '@/utils/response';

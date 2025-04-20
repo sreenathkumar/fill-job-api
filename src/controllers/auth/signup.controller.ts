@@ -1,9 +1,9 @@
-import Token from '@/models/tokenModel';
+import Token from '@/models/token.model';
 import { generateAccessToken, generateRefreshToken, generateTokens } from '@/utils/jwt';
 import { convertToMili } from '@/utils/others';
 import { sendError, sendSuccess } from '@/utils/response';
 import { duration } from '@/utils/types';
-import User from '@models/userModels';
+import User from '@/models/user.model';
 import * as express from 'express';
 import mongoose from 'mongoose';
 

@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 dotenv.config();
 
+import cookieParser from "cookie-parser";
 import cors from 'cors';
 import helmet from 'helmet';
 import mongoose from 'mongoose';
@@ -18,6 +19,7 @@ const app = express();
 
 // Secure HTTP headers
 app.use(helmet());
+app.use(cookieParser())
 
 // Parse incoming JSON and URL-encoded data
 app.use(express.json());

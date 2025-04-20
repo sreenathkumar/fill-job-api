@@ -1,11 +1,10 @@
-import User from '@/models/userModels';
-import { sendError, sendSuccess } from '@/utils/response';
-import * as express from 'express';
-import bcrypt from 'bcryptjs'
-import { generateAccessToken, generateRefreshToken } from '@/utils/jwt';
-import { duration } from '@/utils/types';
 import Token from '@/models/tokenModel';
+import User from '@/models/userModels';
+import { generateTokens } from '@/utils/jwt';
 import { convertToMili } from '@/utils/others';
+import { sendError, sendSuccess } from '@/utils/response';
+import bcrypt from 'bcryptjs';
+import * as express from 'express';
 
 
 //controller for handling login
@@ -37,14 +36,14 @@ const loginController = async (req: express.Request, res: express.Response) => {
 
                 if (result) {
                     //generate the jwt tokens
-                    const accessToken = generateAccessToken(user._id.toString(), process.env.SESSION_EXPIRE as duration);
-                    const refreshToken = generateRefreshToken(user._id.toString(), process.env.SESSION_EXPIRE as duration);
+                    const { accessToken, refreshToken, jti } = generateTokens(user._id.toString());
 
                     if (accessToken && refreshToken) {
                         // find the existing token for the user and replace it with the new one
                         // if not found, create a new one
                         await Token.findOneAndReplace({ user: user._id }, {
                             user: user._id,
+                            jti: jti,
                             refreshToken: refreshToken,
                             expiresAt: new Date(Date.now() + convertToMili(process.env.SESSION_EXPIRE)) //3days
                         }, { upsert: true });
@@ -54,7 +53,7 @@ const loginController = async (req: express.Request, res: express.Response) => {
                             httpOnly: true,
                             secure: process.env.NODE_ENV === 'production',
                             sameSite: 'strict',
-                            maxAge: 15 * 60 * 1000 //15min
+                            maxAge: convertToMili('15m') //15min
                         });
 
                         //set refreshToken to  cookie

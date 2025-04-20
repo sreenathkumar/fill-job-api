@@ -11,6 +11,10 @@ const TokenSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    jti: {
+        type: String,
+        required: true,
+    },
     expiredAt: {
         type: Date,
         required: true,

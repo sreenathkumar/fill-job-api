@@ -1,5 +1,5 @@
 import Token from '@/models/tokenModel';
-import { generateAccessToken, generateRefreshToken } from '@/utils/jwt';
+import { generateAccessToken, generateRefreshToken, generateTokens } from '@/utils/jwt';
 import { convertToMili } from '@/utils/others';
 import { sendError, sendSuccess } from '@/utils/response';
 import { duration } from '@/utils/types';
@@ -29,8 +29,7 @@ const signupController = async (req: express.Request, res: express.Response) => 
         const newUser = new User({ username, password });
         await newUser.save({ session });
 
-        const accessToken = generateAccessToken(newUser._id.toString(), process.env.SESSION_EXPIRE as duration);
-        const refreshToken = generateRefreshToken(newUser._id.toString(), process.env.SESSION_EXPIRE as duration);
+        const { accessToken, refreshToken, jti } = generateTokens(newUser._id.toString());
 
         if (!accessToken || !refreshToken) {
             await session.abortTransaction();
@@ -41,6 +40,7 @@ const signupController = async (req: express.Request, res: express.Response) => 
         const token = new Token({
             user: newUser._id,
             refreshToken,
+            jti,
             expiresAt: new Date(Date.now() + convertToMili(process.env.SESSION_EXPIRE)) // 3 days
         });
 
@@ -53,7 +53,7 @@ const signupController = async (req: express.Request, res: express.Response) => 
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 15 * 60 * 1000 // 15 minutes
+            maxAge: convertToMili('15m') // 15 minutes
         });
 
         res.cookie('refreshToken', refreshToken, {

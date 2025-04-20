@@ -15,6 +15,10 @@ const TokenSchema = new mongoose.Schema({
         type: Date,
         required: true,
         default: () => new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+    },
+    revoked: {
+        type: Boolean,
+        default: false,
     }
 });
 

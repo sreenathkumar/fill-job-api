@@ -41,15 +41,13 @@ const loginController = async (req: express.Request, res: express.Response) => {
                     const refreshToken = generateRefreshToken(user._id.toString(), process.env.SESSION_EXPIRE as duration);
 
                     if (accessToken && refreshToken) {
-                        //create the token
-                        const token = new Token({
+                        // find the existing token for the user and replace it with the new one
+                        // if not found, create a new one
+                        await Token.findOneAndReplace({ user: user._id }, {
                             user: user._id,
                             refreshToken: refreshToken,
                             expiresAt: new Date(Date.now() + convertToMili(process.env.SESSION_EXPIRE)) //3days
-                        });
-
-                        //save on the DB
-                        await token.save();
+                        }, { upsert: true });
 
                         //set accesstoken to the cookie
                         res.cookie('accessToken', accessToken, {

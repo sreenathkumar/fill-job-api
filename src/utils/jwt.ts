@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { v4 as uuidv4 } from 'uuid'
 import { duration } from './types';
 
 /**
@@ -23,7 +24,7 @@ function generateAccessToken(userId: string, time?: duration): string | null {
  * @returns {string | null} - Access token
  */
 function generateRefreshToken(userId: string, time?: duration): string | null {
-    return jwt.sign({ id: userId }, process.env.JWT_SECRET || '', { expiresIn: time || '3d' })
+    return jwt.sign({ id: userId, jti: uuidv4() }, process.env.JWT_SECRET || '', { expiresIn: time || '3d' })
 }
 
 export {

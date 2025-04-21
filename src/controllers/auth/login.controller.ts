@@ -41,7 +41,7 @@ const loginController = async (req: express.Request, res: express.Response) => {
                     if (accessToken && refreshToken) {
                         // find the existing token for the user and replace it with the new one
                         // if not found, create a new one
-                        await Token.findOneAndReplace({ user: user._id }, {
+                        await Token.findOneAndReplace({ user: user._id, type: 'refreshToken' }, {
                             user: user._id,
                             jti: jti,
                             token: refreshToken,

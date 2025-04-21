@@ -38,6 +38,11 @@ function generateRefreshToken(payload: RefreshTokenPayload, time?: duration): st
 }
 
 
+function generateResetToken(payload: any, time?: duration): string | null {
+    return jwt.sign(payload, process.env.JWT_SECRET || '', { expiresIn: time || '1d' })
+}
+
+
 /**
  * @param {string} userId - User id to generate token for
  * @description This function will generate access and refresh token for the user. It will also generate a jti (JWT ID) for the refresh token. The jti is used to identify the refresh token in the database.
@@ -56,5 +61,6 @@ function generateTokens(userId: string): { accessToken: string | null, refreshTo
 export {
     generateAccessToken,
     generateRefreshToken,
+    generateResetToken,
     generateTokens
 }

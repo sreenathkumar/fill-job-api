@@ -39,7 +39,8 @@ const signupController = async (req: express.Request, res: express.Response) => 
 
         const token = new Token({
             user: newUser._id,
-            refreshToken,
+            token: refreshToken,
+            type: 'refreshToken',
             jti,
             expiresAt: new Date(Date.now() + convertToMili(process.env.SESSION_EXPIRE)) // 3 days
         });

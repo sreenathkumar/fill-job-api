@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import User from "./user.model";
 
 const TokenSchema = new mongoose.Schema({
     user: {
@@ -7,18 +6,22 @@ const TokenSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    refreshToken: {
+    token: {
+        type: String,
+        required: true,
+    },
+    type: {
         type: String,
         required: true,
     },
     jti: {
         type: String,
         required: true,
+        unique: true,
     },
-    expiredAt: {
+    expiresAt: {
         type: Date,
         required: true,
-        default: () => new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
     },
     revoked: {
         type: Boolean,

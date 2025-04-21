@@ -44,9 +44,10 @@ const loginController = async (req: express.Request, res: express.Response) => {
                         await Token.findOneAndReplace({ user: user._id }, {
                             user: user._id,
                             jti: jti,
-                            refreshToken: refreshToken,
+                            token: refreshToken,
+                            type: 'refreshToken',
                             expiresAt: new Date(Date.now() + convertToMili(process.env.SESSION_EXPIRE)) //3days
-                        }, { upsert: true });
+                        }, { upsert: true, reValidators: true });
 
                         //set accesstoken to the cookie
                         res.cookie('accessToken', accessToken, {

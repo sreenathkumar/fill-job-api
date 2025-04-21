@@ -4,12 +4,12 @@ import { ApiResponse } from "./types";
 // Generalized "Success" response
 function sendSuccess<T>(
     res: Response,
-    data: T,
+    data?: T,
     message: string = "Success",
     code: number = 200
 ): Response<ApiResponse<T>> {
     return res.status(code).json({
-        status: true,
+        status: 'success',
         message,
         data
     });
@@ -23,7 +23,7 @@ function sendError(
     errors: string[] = []
 ): Response<ApiResponse<null>> {
     return res.status(code).json({
-        status: false,
+        status: 'error',
         message,
         errors
     });

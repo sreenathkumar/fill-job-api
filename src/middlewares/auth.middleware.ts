@@ -48,7 +48,7 @@ const tryRefreshToken = async (req: express.Request, res: express.Response, next
 
         const { id, jti } = decoded;
 
-        const dbToken = await Token.findOne({ user: id, jti });
+        const dbToken = await Token.findOne({ user: id, jti, type: 'refreshToken', token: refreshToken });
 
         if (!dbToken) {
             return sendError(res, 'Unauthorized', 401, ['Refresh token not recognized']);

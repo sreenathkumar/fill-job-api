@@ -2,7 +2,7 @@ import Token from '@/models/token.model';
 import { generateTokens } from '@/utils/jwt';
 import { convertToMili } from '@/utils/others';
 import { sendError } from '@/utils/response';
-import express from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
 /**
@@ -12,20 +12,21 @@ import jwt from 'jsonwebtoken';
  * @param res 
  * @param next 
  */
-const authenticate = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+const authenticate = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const accessToken = req.cookies['accessToken'] || req.headers['authorization']?.split(' ')[1];
 
-        // 1️⃣ Try access token first
+        // Try access token first
         if (accessToken) {
             return jwt.verify(accessToken, process.env.JWT_SECRET!, (err: any, decoded: any) => {
                 if (err) return tryRefreshToken(req, res, next);
 
+                res.locals.user_id = decoded?.id;
                 return next();
             });
         }
 
-        // 2️⃣ No access token? Try refresh flow
+        // No access token? Try refresh flow
         return tryRefreshToken(req, res, next);
     } catch (error: any) {
         console.error('Auth Middleware Error:', error.message);
@@ -33,7 +34,7 @@ const authenticate = async (req: express.Request, res: express.Response, next: e
     }
 };
 
-const tryRefreshToken = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+const tryRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
 
     const refreshToken = req.cookies['refreshToken'];
 
@@ -76,6 +77,8 @@ const tryRefreshToken = async (req: express.Request, res: express.Response, next
             maxAge: convertToMili('3d'),
         });
 
+        //pass user id to next middleware
+        res.locals.user_id = id;
         return next();
     });
 };

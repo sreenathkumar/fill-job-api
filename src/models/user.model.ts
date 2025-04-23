@@ -14,6 +14,10 @@ const UserSchema = new mongoose.Schema({
       type: String,
       required: false
    },
+   image: {
+      type: String,
+      required: false
+   },
    profiles: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'applicationProfile'

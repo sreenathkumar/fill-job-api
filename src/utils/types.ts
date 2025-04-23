@@ -7,11 +7,13 @@ export interface ApiResponse<T = any> {
    errors: string[],
 }
 
-export interface UserType extends Document {
-   name: string,
-   email: string,
-   profiles: mongoose.Schema.Types.ObjectId[],
-   type: string
+export interface UserType {
+   id: string,
+   name: string | null | undefined,
+   username: string,
+   image: string | null | undefined,
+   profiles: mongoose.Types.ObjectId[] | null | undefined,
+   type: string | null | undefined,
 }
 
 export interface ProfileDataType {

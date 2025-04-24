@@ -13,7 +13,7 @@ async function forgotPasswordController(req: Request, res: Response) {
         // check if user exists in the database
         const user = await User.findOne({ username });
         if (!user) {
-            sendError(res, 'User not found', 404);
+            return sendError(res, 'User not found', 404);
         }
         //generate a password reset token
         const resetToken = generateResetToken({ username });
@@ -34,10 +34,11 @@ async function forgotPasswordController(req: Request, res: Response) {
 
 
         //send the success mail
-        sendSuccess(res, undefined, 'Password reset link sent to your email.', 200)
+        return sendSuccess(res, undefined, 'Password reset link sent to your email.', 200)
 
-    } catch (error) {
-        res.status(500).json({ error: "An error occurred while processing your request." });
+    } catch (error: any) {
+        console.error('Error in forgot password controller:', error?.message);
+        return sendError(res, 'Internal server error', 500, [error?.message || 'Something went wrong']);
     }
 }
 

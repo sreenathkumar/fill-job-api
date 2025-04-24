@@ -64,11 +64,11 @@ const signupController = async (req: express.Request, res: express.Response) => 
             maxAge: convertToMili(process.env.SESSION_EXPIRE) // 3 days
         });
 
-        sendSuccess(res, newUser, 'User created successfully');
+        return sendSuccess(res, newUser, 'User created successfully');
     } catch (error: any) {
         await session.abortTransaction();
         session.endSession();
-        sendError(res, 'Unexpected error occurred', 500, [error?.message]);
+        return sendError(res, 'Unexpected error occurred', 500, [error?.message]);
     }
 };
 

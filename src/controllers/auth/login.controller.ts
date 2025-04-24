@@ -13,11 +13,11 @@ const loginController = async (req: express.Request, res: express.Response) => {
     const { username, password } = req.body;
 
     if (!username) {
-        sendError(res, 'Invalid input', 400, ['Username is required']);
+        return sendError(res, 'Invalid input', 400, ['Username is required']);
     }
 
     if (!password) {
-        sendError(res, 'Invalid input', 400, ['Password is required']);
+        return sendError(res, 'Invalid input', 400, ['Password is required']);
     }
 
 
@@ -31,7 +31,7 @@ const loginController = async (req: express.Request, res: express.Response) => {
             //compare password
             bcrypt.compare(password, hash, async (err, result) => {
                 if (err) {
-                    sendError(res, 'Authentication error', 401, ['Unknow bcrypt error.'],);
+                    return sendError(res, 'Authentication error', 401, ['Unknow bcrypt error.'],);
                 }
 
                 if (result) {
@@ -72,15 +72,15 @@ const loginController = async (req: express.Request, res: express.Response) => {
                         return sendError(res, 'Error in generating tokens', 500, ['No accessToken or refreshToken is generated']);
                     }
                 } else {
-                    sendError(res, 'Authentication error', 401, ['username or password is incorrect.']);
+                    return sendError(res, 'Authentication error', 401, ['username or password is incorrect.']);
                 }
 
             })
         } else {
-            sendError(res, 'Authentication error', 401, ['No user registered with this email.']);
+            return sendError(res, 'Authentication error', 401, ['No user registered with this email.']);
         }
     } catch (error: any) {
-        sendError(res, 'Unexpected error in setting tokens.', 500, [error?.message]);
+        return sendError(res, 'Unexpected error in setting tokens.', 500, [error?.message]);
     }
 }
 

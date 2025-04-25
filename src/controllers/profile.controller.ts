@@ -1,90 +1,154 @@
-import express from "express";
-import User from "@/models/user.model";
-import ApplicationProfile from "@/models/profile.model";
-import { getGroqChatCompletion } from "@/config/AI";
+import * as profileService from "@/services/profile";
+import { sendError, sendSuccess } from "@/utils/response";
 import dbDataMapJson from "@utils/dbDataMap.json";
-import { ProfileDataType } from "@utils/types";
+import { Request, Response } from "express";
+
 const dbDataMap = dbDataMapJson as { [key: string]: string };
 
 // =========================================================
-// Controller for getting profiles
+// Get single profile of a user
 // =========================================================
-export const getProfilesController = async (
-   req: express.Request,
-   res: express.Response
+export const getProfile = async (
+   req: Request,
+   res: Response
 ) => {
-   console.log('get profile')
    try {
-      //const { user_id } = req.query as { user_id: string };
+      const username = req.params.id as string;
 
-      // if (!user_id) {
-      //    res.send({ status: 'error', message: 'user_id not found' });
-      //    return;
-      // };
-      const user = await User.find({});
-      console.log(user);
-      if (user.length === 0) {
-         throw Error("user not found");
+      if (!username) {
+         return sendError(res, 'username is required', 401, ['Please provide a valid username of the profile.']);
       }
-      //console.log(Object.keys(user).length);
-   } catch (error) {
-      //console.log(error);
 
-      res.send({ status: "error", message: error });
+      //get data form database
+      const profile = await profileService.getProfile(username);
+
+      if (!profile) {
+         return sendError(res, 'Profile not found', 404, [`There is no profile registered with this "${username}" username.`]);
+      }
+
+      //send the success response
+      return sendSuccess(res, profile, 'Job profile fetched successfully', 200);
+
+   } catch (error: any) {
+      console.log('Error in getting single job profile:', error);
+      //send the error response
+      return sendError(res, 'Internal server error', 500, [error?.message || 'Something went wrong']);
    }
+};
+
+// =========================================================
+// Get all profiles
+// =========================================================
+export const getProfiles = async (
+   req: Request,
+   res: Response
+) => {
+   try {
+      const user_id = res.locals.user_id;
+
+      if (!user_id) {
+         console.log('user id not found');
+         return sendError(res, 'user id is required', 401, ['User id is missing in the request.']);
+      }
+
+      //get data form database
+      const profiles = await profileService.getAllProfiles(user_id);
+
+      if (profiles.length === 0) {
+         return sendError(res, 'Profiles not found', 404, ['There is no profile registered.']);
+      }
+
+      //send the success response
+      return sendSuccess(res, profiles, 'Job profiles fetched successfully', 200);
+
+   } catch (error: any) {
+      console.log('Error in getAllProfiles controller:', error.message);
+      //send the error response
+      return sendError(res, 'Internal server error', 500, [error?.message || 'Something went wrong']);
+   }
+
 };
 
 // =========================================================
 // Controller for creating profile
 // =========================================================
-export const createProfileController = async (req: express.Request, res: express.Response) => {
+export const createProfile = async (req: Request, res: Response) => {
    const profileData = req.body;
+   const user_id = res.locals.user_id;
 
    if (!profileData) {
-      res.send({ status: 'error', message: 'profile data not found' });
-      return;
+      return sendError(res, 'profile data not found', 401, ['Please provide a valid profile data.']);
    };
+
    try {
-      const createRes = await ApplicationProfile.create(profileData);
-      res.send({ status: 'success', message: 'profile created successfully', data: createRes });
-   } catch (error) {
-      res.send({ status: 'error', message: error });
+      const createdProfile = await profileService.createProfile({ belongs_to: user_id, ...profileData });
+
+      if (!createdProfile) {
+         return sendError(res, 'Profile not created', 404, ['There is some error in creating the profile.']);
+      }
+
+      //send the success response
+      return sendSuccess(res, createdProfile, 'Job profile created successfully', 200);
+   } catch (error: any) {
+
+      console.log('Error in createProfile controller:', error?.message);
+      return sendError(res, 'Internal server error', 500, [error?.message || 'Something went wrong in creating job profile']);
    }
 };
 
 // =========================================================
 // Controller for updating profile
 // =========================================================
-export const updateProfileController = async (req: express.Request, res: express.Response) => {
+export const updateProfile = async (req: Request, res: Response) => {
+   const user_id = res.locals.user_id;
+   if (!user_id) {
+      return sendError(res, 'user id is required', 401, ['User id is missing in the request.']);
+   }
+
+   const username = req.params.id as string;
    const profileData = req.body;
 
    if (!profileData) {
-      res.send({ status: 'error', message: 'profile data not found' });
-      return;
+      return sendError(res, 'Profile data not found', 401, ['Please provide a valid profile data.']);
    };
+
    try {
-      const updateRes = await ApplicationProfile.updateOne({ _id: profileData._id }, profileData);
-      res.send({ status: 'success', message: 'profile updated successfully', data: updateRes });
-   } catch (error) {
-      res.send({ status: 'error', message: error });
+      const updatedProfile = await profileService.updateProfile({ ...profileData, username, belongs_to: user_id });
+
+      if (!updatedProfile) {
+         return sendError(res, 'Profile not updated', 404, ['There is some error in updating the profile.']);
+      }
+
+      //send the success response
+      return sendSuccess(res, updatedProfile, 'Job profile updated successfully', 200);
+   } catch (error: any) {
+      console.log('Error in updateProfile controller:', error?.message);
+      return sendError(res, 'Internal server error', 500, [error?.message || 'Something went wrong in updating job profile']);
    }
 };
 
 // =========================================================
 // Controller for deleting profile
 // =========================================================
-export const deleteProfileController = async (req: express.Request, res: express.Response) => {
-   const profileId = req.query.profileId as string;
-   if (!profileId) {
+export const deleteProfile = async (req: Request, res: Response) => {
+   const username = req.params.id as string;
+   if (!username) {
       res.send({ status: 'error', message: 'profile id not found' });
-      return;
+      return sendError(res, 'username is required', 401, ['Please provide a valid username of the profile.']);
    }
 
    try {
-      const deleteRes = await ApplicationProfile.deleteOne({ _id: profileId });
-      res.send({ status: 'success', message: 'profile deleted successfully', data: deleteRes });
-   } catch (error) {
-      res.send({ status: 'error', message: error });
+      const deleted = await profileService.deleteProfile(username);
+      if (!deleted) {
+         return sendError(res, 'Profile not deleted', 404, ['There is some error in deleting the profile.']);
+      }
+      //send the success response
+      sendSuccess(res, deleted, 'Job profile deleted successfully', 200);
+
+   } catch (error: any) {
+
+      console.log('Error in deleteProfile controller:', error?.message);
+      return sendError(res, 'Internal server error', 500, [error?.message || 'Something went wrong in deleting job profile']);
    }
 }
 
@@ -92,8 +156,8 @@ export const deleteProfileController = async (req: express.Request, res: express
 // Controller for getting job data
 // =========================================================
 export const getJobDataController = async (
-   req: express.Request,
-   res: express.Response
+   req: Request,
+   res: Response
 ) => {
 
    try {

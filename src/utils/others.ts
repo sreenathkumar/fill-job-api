@@ -47,3 +47,15 @@ export function convertToMili(time: string | undefined): number {
    }
    return duration;
 }
+
+
+/**
+ * * Normalize the object by removing unwanted properties and replace the _id to id.
+ * @param {any} doc - The object to be normalized.
+ */
+export function normalizeObj(doc: any) {
+   doc.id = doc._id.toString();
+   delete doc._id;
+   delete doc.__v;
+   return doc;
+}

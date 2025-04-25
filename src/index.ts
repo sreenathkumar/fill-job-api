@@ -61,7 +61,7 @@ app.get('/api', (req, res) => res.send('🚀 API is working!'));
 // Modular routes
 app.use('/api/auth', authRoutes);
 app.use('/api/images', imageRoutes);
-app.use('/api/profile', profileRoutes);
+app.use('/api/profiles', profileRoutes);
 app.use('/api/user', userRoutes);
 
 // ================= Server ===================

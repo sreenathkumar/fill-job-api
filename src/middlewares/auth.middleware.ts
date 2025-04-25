@@ -60,7 +60,7 @@ const tryRefreshToken = async (req: Request, res: Response, next: NextFunction) 
 
         // Update token record
         dbToken.jti = newJti;
-        dbToken.refreshToken = newRefreshToken;
+        dbToken.token = newRefreshToken;
         dbToken.expiresAt = new Date(Date.now() + convertToMili(process.env.SESSION_EXPIRE!)); // 3 days
         await dbToken.save();
 
@@ -68,7 +68,7 @@ const tryRefreshToken = async (req: Request, res: Response, next: NextFunction) 
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            maxAge: convertToMili('15m'),
+            maxAge: convertToMili('1m'),
         });
 
         res.cookie('refreshToken', newRefreshToken, {

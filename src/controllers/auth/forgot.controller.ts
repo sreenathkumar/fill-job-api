@@ -33,7 +33,7 @@ async function forgotPassword(req: Request, res: Response) {
 
 
         //send the password token with the reset password link to the user's email
-        const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+        const resetLink = `${process.env.CLIENT_URL}/reset-password/?token=${resetToken}`;
 
         const isSuccess = await sendResetPasswordEmail({
             email: user?.username,

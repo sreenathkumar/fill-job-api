@@ -1,3 +1,6 @@
+import crypto from 'crypto';
+
+
 export function getFileExtension(filename: string) {
    // Get file extension
    const fileExtension = filename.split('.').pop();
@@ -58,4 +61,9 @@ export function normalizeObj(doc: any) {
    delete doc._id;
    delete doc.__v;
    return doc;
+}
+
+export function generateOTP(): string {
+   const otp = crypto.randomInt(100000, 999999);
+   return otp.toString();
 }

@@ -4,11 +4,11 @@ import { generateTokens } from '@/utils/jwt';
 import { convertToMili } from '@/utils/others';
 import { sendError, sendSuccess } from '@/utils/response';
 import bcrypt from 'bcryptjs';
-import * as express from 'express';
+import { Request, Response } from 'express';
 
 
 //controller for handling login
-const loginController = async (req: express.Request, res: express.Response) => {
+const loginController = async (req: Request, res: Response) => {
 
     const { username, password } = req.body;
 
@@ -65,8 +65,16 @@ const loginController = async (req: express.Request, res: express.Response) => {
                             maxAge: convertToMili(process.env.SESSION_EXPIRE) //3d
                         });
 
+                        const userData = {
+                            id: user._id.toString(),
+                            username: user.username,
+                            name: user.name,
+                            image: user.image,
+                            emailVerified: user.emailVerified,
+                        }
+
                         //send the response
-                        return sendSuccess(res, user, 'Logged in successfully');
+                        return sendSuccess(res, userData, 'Logged in successfully');
 
                     } else {
                         return sendError(res, 'Error in generating tokens', 500, ['No accessToken or refreshToken is generated']);

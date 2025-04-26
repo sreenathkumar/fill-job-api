@@ -26,6 +26,10 @@ const UserSchema = new mongoose.Schema({
       type: String,
       required: false
    },
+   emailVerified: {
+      type: Boolean,
+      default: false
+   }
 });
 
 //hash the password before saving the password

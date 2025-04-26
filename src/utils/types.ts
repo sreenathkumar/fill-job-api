@@ -14,6 +14,7 @@ export interface UserType {
    image: string | null | undefined,
    profiles: mongoose.Types.ObjectId[] | null | undefined,
    type: string | null | undefined,
+   emailVerified: boolean | null | undefined,
 }
 
 export interface ProfileDataType {

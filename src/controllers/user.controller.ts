@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { sendError, sendSuccess } from "@/utils/response";
 import * as userServices from '@/services/user';
+import { sendError, sendSuccess } from "@/utils/response";
+import { Request, Response } from "express";
 
 export const getUser = async (req: Request, res: Response) => {
     try {
@@ -15,6 +15,15 @@ export const getUser = async (req: Request, res: Response) => {
 
         if (!user) {
             return sendError(res, 'User not found', 404, ['No user found with this id']);
+        }
+
+        const userData = {
+            username: user.username,
+            name: user.name,
+            image: user.image,
+            emailVerified: user.emailVerified,
+            profiles: user.profiles,
+            type: user.type,
         }
 
         //send the success response

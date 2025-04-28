@@ -50,7 +50,7 @@ const signupController = async (req: express.Request, res: express.Response) => 
 
         // Generate OTP
         const otp = generateOTP();
-        const otpExpiry = new Date(Date.now() + convertToMili('10min'));
+        const otpExpiry = new Date(Date.now() + convertToMili('10m'));
 
         await new OTP({
             email: newUser.username,
@@ -85,6 +85,7 @@ const signupController = async (req: express.Request, res: express.Response) => 
         return sendSuccess(res, undefined, 'User created successfully');
     } catch (error: any) {
         await abortSession();
+        console.log('Error in signup controller: ', error.message);
         return sendError(res, 'Unexpected error occurred', 500, [error?.message]);
     }
 };

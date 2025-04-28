@@ -27,7 +27,7 @@ export const getUser = async (req: Request, res: Response) => {
         }
 
         //send the success response
-        return sendSuccess(res, user, 'User profile fetched successfully', 200);
+        return sendSuccess(res, userData, 'User profile fetched successfully', 200);
 
     } catch (error: any) {
         console.log('Error in getProfile controller:', error);

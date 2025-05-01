@@ -52,16 +52,16 @@ const loginController = async (req: Request, res: Response) => {
                         //set accesstoken to the cookie
                         res.cookie('accessToken', accessToken, {
                             httpOnly: true,
-                            secure: process.env.NODE_ENV === 'production',
-                            sameSite: 'strict',
+                            secure: true,
+                            sameSite: 'none',
                             maxAge: convertToMili('15m') //15min
                         });
 
                         //set refreshToken to  cookie
                         res.cookie('refreshToken', refreshToken, {
                             httpOnly: true,
-                            secure: process.env.NODE_ENV === 'production',
-                            sameSite: 'strict',
+                            secure: true,
+                            sameSite: 'none',
                             maxAge: convertToMili(process.env.SESSION_EXPIRE) //3d
                         });
 
@@ -71,6 +71,8 @@ const loginController = async (req: Request, res: Response) => {
                             name: user.name,
                             image: user.image,
                             emailVerified: user.emailVerified,
+                            type: user.type,
+                            profiles: user.profiles
                         }
 
                         //send the response
@@ -82,7 +84,6 @@ const loginController = async (req: Request, res: Response) => {
                 } else {
                     return sendError(res, 'Authentication error', 401, ['username or password is incorrect.']);
                 }
-
             })
         } else {
             return sendError(res, 'Authentication error', 401, ['No user registered with this email.']);

@@ -67,13 +67,15 @@ const tryRefreshToken = async (req: Request, res: Response, next: NextFunction) 
         // Set new cookies
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: true,
+            sameSite: 'none',
             maxAge: convertToMili('1m'),
         });
 
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: true,
+            sameSite: 'none',
             maxAge: convertToMili('3d'),
         });
 

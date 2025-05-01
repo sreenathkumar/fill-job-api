@@ -15,7 +15,7 @@ const router: Router = express.Router();
 
 router.post('/signup', loginSpeedLimiter, loginRateLimiter, validate(signupSchema), signupController);
 router.post('/login', loginSpeedLimiter, loginRateLimiter, loginController);
-router.post('/logout', logoutController);
+router.get('/logout', logoutController);
 router.post('/forgot-password', loginSpeedLimiter, loginRateLimiter, forgotPasswordController);
 router.post('/reset-password', resetPasswordController);
 router.post('/verify-email', loginSpeedLimiter, loginRateLimiter, verifyEmailController);

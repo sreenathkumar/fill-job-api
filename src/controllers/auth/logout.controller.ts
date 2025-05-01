@@ -1,11 +1,37 @@
-import * as express from 'express';
-
+import Token from "@/models/token.model";
+import { sendError, sendSuccess } from "@/utils/response";
+import { Request, Response } from "express";
+import jwt from 'jsonwebtoken'
 
 
 //controller for handling logout
-const logoutController = async (req: express.Request, res: express.Response) => {
-    //do something
-    res.send({ status: 'success', message: 'logged out successfully' });
+const logoutController = async (req: Request, res: Response) => {
+    const refreshToken = req.cookies['refreshToken']
+    try {
+        //decode the cookie
+        jwt.verify(refreshToken, process.env.JWT_SECRET!!, async (err: any, decode: any) => {
+            if (err) {
+                return sendError(res, 'Logout failed', 500, ['Refresh token validation failed.'])
+            }
+            const { jti, user }: { jti: string, user: string } = decode;
+
+            //delete from db
+            const result = await Token.deleteOne({ user, jti });
+
+            if (result.deletedCount > 0) {
+                res.clearCookie('accessToken');
+                res.clearCookie('refreshToken');
+
+                sendSuccess(res, undefined, 'Log out successfully.', 200)
+            } else {
+                throw new Error('Error in deleting token. Try again!.');
+            }
+        })
+    } catch (error: any) {
+        console.log('error in logout controller: ', error?.message)
+        return sendError(res, 'Unexpected error.', 500, [error?.message])
+    }
+
 }
 
 export default logoutController;

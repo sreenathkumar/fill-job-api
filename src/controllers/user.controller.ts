@@ -17,17 +17,8 @@ export const getUser = async (req: Request, res: Response) => {
             return sendError(res, 'User not found', 404, ['No user found with this id']);
         }
 
-        const userData = {
-            username: user.username,
-            name: user.name,
-            image: user.image,
-            emailVerified: user.emailVerified,
-            profiles: user.profiles,
-            type: user.type,
-        }
-
         //send the success response
-        return sendSuccess(res, userData, 'User profile fetched successfully', 200);
+        return sendSuccess(res, user, 'User profile fetched successfully', 200);
 
     } catch (error: any) {
         console.log('Error in getProfile controller:', error);

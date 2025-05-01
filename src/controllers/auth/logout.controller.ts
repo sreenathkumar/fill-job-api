@@ -13,18 +13,18 @@ const logoutController = async (req: Request, res: Response) => {
             if (err) {
                 return sendError(res, 'Logout failed', 500, ['Refresh token validation failed.'])
             }
-            const { jti, user }: { jti: string, user: string } = decode;
+            const { jti, id }: { jti: string, id: string } = decode;
 
             //delete from db
-            const result = await Token.deleteOne({ user, jti });
+            const result = await Token.findOneAndDelete({ user: id, jti });
 
-            if (result.deletedCount > 0) {
+            if (result) {
                 res.clearCookie('accessToken');
                 res.clearCookie('refreshToken');
 
                 sendSuccess(res, undefined, 'Log out successfully.', 200)
             } else {
-                throw new Error('Error in deleting token. Try again!.');
+                sendError(res, 'logout failed', 500, ['Error in deleting token. Try again!.']);
             }
         })
     } catch (error: any) {

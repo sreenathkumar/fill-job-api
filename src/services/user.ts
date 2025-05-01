@@ -16,7 +16,7 @@ async function getUser(user_id: string): Promise<UserType | null> {
         //get data form database
         const user = await User.findOne({ _id: user_id })
             .lean()
-            .select({ _id: 1, name: 1, email: 1, image: 1, profiles: 1, type: 1, emailVerified: 1 });
+            .select({ _id: 1, name: 1, username: 1, image: 1, profiles: 1, type: 1, emailVerified: 1 });
 
         if (!user) {
             return null;

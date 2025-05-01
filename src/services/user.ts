@@ -38,4 +38,32 @@ async function getUser(user_id: string): Promise<UserType | null> {
 
 }
 
-export { getUser }
+async function updateUser(user_id: string, data: { name?: string, image?: string }): Promise<UserType | null> {
+    try {
+        if (!user_id) {
+            return null;
+        }
+
+        //get data form database
+        const updatedUser = await User.findOneAndUpdate({ _id: user_id }, data, { new: true })
+
+        if (!updatedUser) {
+            return null;
+        }
+
+        return {
+            id: updatedUser._id.toString(),
+            username: updatedUser.username,
+            name: updatedUser.name,
+            image: updatedUser.image,
+            profiles: updatedUser.profiles,
+            type: updatedUser.type,
+            emailVerified: updatedUser.emailVerified,
+        };
+
+    } catch (error: any) {
+        return null;
+    }
+}
+
+export { getUser, updateUser }

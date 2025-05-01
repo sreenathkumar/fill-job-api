@@ -15,6 +15,7 @@ import userRoutes from '@/routes/user.routes';
 
 
 const app = express();
+app.set('trust proxy', 1);
 
 // ================= Middleware ===================
 
@@ -27,14 +28,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS config (limit to allowed origins)
+const allowedOrigins = [
+  "chrome-extension://iflkinlhfccfnefebkecggckkddhkaog",
+  "http://localhost:3000",
+  "https://teletalk.com.bd",
+];
+
 app.use(
   cors({
-    origin: [
-      "chrome-extension://ibmhjcapkbiglkomafdafglbjfjmhanh",
-      "http://localhost:3000",
-      "https://teletalk.com.bd",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps, curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
     credentials: true,
   })
 );
@@ -54,7 +66,7 @@ if (process.env.DATABASE_URI) {
 }
 
 // ================= Routes ===================
-
+app.options('*', cors());
 app.get('/api', (req, res) => res.send('🚀 API is working!'));
 
 

@@ -1,6 +1,8 @@
 import JobProfile from "@/models/profile.model";
+import User from "@/models/user.model";
 import { normalizeObj } from "@/utils/others";
 import { ProfileDataType } from "@/utils/types";
+import mongoose from "mongoose";
 
 
 /**
@@ -8,18 +10,17 @@ import { ProfileDataType } from "@/utils/types";
  * @description This function is used to get the job profile data of a user from the database.
  * @returns {Promise<any>} - returns the job profile data for the user.
  */
-export const getProfile = async (username: string): Promise<any> => {
+export const getProfile = async ({ username, belongs_to }: { username: string, belongs_to: string }): Promise<any> => {
     try {
-        if (!username) {
+        if (!username || !belongs_to) {
             return null;
         }
 
         //get data form database
-        const profile = await JobProfile.findOne({ username }).lean();
+        const profile = await JobProfile.findOne({ username, belongs_to }).lean();
 
         if (!profile) {
             return null
-
         }
 
         return profile;
@@ -63,26 +64,49 @@ export const getAllProfiles = async (userId: string): Promise<any> => {
  * 
  * @param {ProfileDataType} profileData - profile data of the user to be created.
  * @description This function is used to create a new job profile in the database.
- * @returns {<Promise<ProfileDataType | null>>} - returns the created job profile data.
+ * @returns {<Promise<any[] | null>>} - returns the array of the profile Ids for the user.
  * 
  */
-export const createProfile = async (profileData?: ProfileDataType): Promise<ProfileDataType | null> => {
+export const createProfile = async (profileData?: ProfileDataType): Promise<any[] | null> => {
+
+    const user_id = profileData?.belongs_to;
+
+    if (!user_id) {
+        throw new Error('You\'re not allowed to create profile.');
+    }
+
+    if (!profileData) {
+        throw new Error('Profile data is required');
+    }
+
+    const session = await mongoose.startSession();
+
+    const abortSession = async () => {
+        await session.abortTransaction();
+        session.endSession();
+    };
+
     try {
-        console.log('Creating profile with data:', profileData);
-        if (!profileData) {
-            throw new Error('Profile data is required');
-        }
-
+        session.startTransaction();
+        // save profile data
         const newProfile = new JobProfile(profileData);
-        await newProfile.save();
+        await newProfile.save({ session });
 
-        if (!newProfile) {
-            throw new Error('Failed to create new profile in the database.');
+        //update user
+        const user = await User.findOneAndUpdate({ _id: user_id, }, { $push: { profiles: newProfile._id } }, { new: true, session }).populate('profiles', 'name username').select('-_id').exec();
+
+        if (user) {
+            await session.commitTransaction();
+            session.endSession();
+
+            return user.profiles;
         }
 
-        return normalizeObj(newProfile.toObject()) as ProfileDataType;
+        await abortSession();
+        return null
 
     } catch (error: any) {
+        await abortSession();
         if (error?.code === 11000) {
             const field = Object.keys(error.keyValue || {})[0];
             const value = error.keyValue?.[field] || 'value';
@@ -90,7 +114,6 @@ export const createProfile = async (profileData?: ProfileDataType): Promise<Prof
         }
 
         throw new Error(error.message || 'Something went wrong while creating profile');
-
     }
 }
 

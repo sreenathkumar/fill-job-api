@@ -23,7 +23,7 @@ const loginController = async (req: Request, res: Response) => {
 
     try {
         //check user exists against the username
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ username }).populate('profiles', 'name username');
 
         if (user) {
             const hash = user.password;

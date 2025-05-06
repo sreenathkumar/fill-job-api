@@ -82,7 +82,17 @@ const signupController = async (req: express.Request, res: express.Response) => 
             maxAge: convertToMili(process.env.SESSION_EXPIRE)
         });
 
-        return sendSuccess(res, undefined, 'User created successfully');
+        const userData = {
+            id: newUser._id.toString(),
+            username: newUser.username,
+            name: newUser.name,
+            image: newUser.image,
+            emailVerified: newUser.emailVerified,
+            type: newUser.type,
+            profiles: newUser.profiles
+        }
+
+        return sendSuccess(res, userData, 'User created successfully');
     } catch (error: any) {
         await abortSession();
         console.log('Error in signup controller: ', error.message);

@@ -20,7 +20,7 @@ const UserSchema = new mongoose.Schema({
    },
    profiles: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'applicationProfile'
+      ref: 'JobProfile'
    }],
    type: {
       type: String,

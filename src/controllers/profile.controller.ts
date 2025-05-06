@@ -14,13 +14,14 @@ export const getProfile = async (
 ) => {
    try {
       const username = req.params.id as string;
+      const user_id = res.locals.user_id;
 
       if (!username) {
          return sendError(res, 'username is required', 401, ['Please provide a valid username of the profile.']);
       }
 
       //get data form database
-      const profile = await profileService.getProfile(username);
+      const profile = await profileService.getProfile({ username, belongs_to: user_id });
 
       if (!profile) {
          return sendError(res, 'Profile not found', 404, [`There is no profile registered with this "${username}" username.`]);

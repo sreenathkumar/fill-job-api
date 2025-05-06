@@ -16,7 +16,7 @@ async function getUser(user_id: string): Promise<UserType | null> {
         //get data form database
         const user = await User.findOne({ _id: user_id })
             .lean()
-            .select({ _id: 1, name: 1, username: 1, image: 1, profiles: 1, type: 1, emailVerified: 1 });
+            .select({ _id: 1, name: 1, username: 1, image: 1, profiles: 1, type: 1, emailVerified: 1 }).populate('profiles', 'name username');
 
         if (!user) {
             return null;
@@ -45,7 +45,7 @@ async function updateUser(user_id: string, data: { name?: string, image?: string
         }
 
         //get data form database
-        const updatedUser = await User.findOneAndUpdate({ _id: user_id }, data, { new: true })
+        const updatedUser = await User.findOneAndUpdate({ _id: user_id }, data, { new: true }).populate('profiles', 'name username')
 
         if (!updatedUser) {
             return null;

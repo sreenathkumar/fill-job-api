@@ -67,7 +67,12 @@ if (process.env.DATABASE_URI) {
 
 // ================= Routes ===================
 app.options('*', cors());
-app.get('/api', (req, res) => res.send('🚀 API is working!'));
+app.get('/api', (req, res) => {
+  if (req.query.key !== process.env.KEEP_ALIVE_KEY) {
+    return res.status(403).send("Forbidden");
+  }
+  res.send("OK");
+});
 
 
 // Modular routes

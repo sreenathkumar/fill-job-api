@@ -1,0 +1,14 @@
+name: Keep Render App Alive
+
+on:
+  schedule:
+    - cron: "*/14 * * * *" # Every 14 minutes
+  workflow_dispatch: # Allow manual runs
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send GET request to Render
+        run: |
+          curl -s --fail "${{ secrets.PROD_URL }}?key=${{ secrets.KEEP_ALIVE_KEY }}" || echo "Ping failed"

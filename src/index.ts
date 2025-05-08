@@ -29,7 +29,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // CORS config (limit to allowed origins)
 const allowedOrigins = [
-  "chrome-extension://iflkinlhfccfnefebkecggckkddhkaog",
   "http://localhost:3000",
   "https://teletalk.com.bd",
 ];
@@ -38,7 +37,8 @@ app.use(
   cors({
     origin: function (origin, callback) {
       // allow requests with no origin (like mobile apps, curl requests)
-      if (!origin) return callback(null, true);
+      if (!origin || process.env.MODE === "dev") return callback(null, true);
+
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {

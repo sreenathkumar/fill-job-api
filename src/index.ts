@@ -29,8 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // CORS config (limit to allowed origins)
 const allowedOrigins = [
-  "http://localhost:3000",
-  "https://teletalk.com.bd",
+  "moz-extension://87dc2eaf-06ba-4432-b8b7-0ecbbaf3bd37"
 ];
 
 app.use(
